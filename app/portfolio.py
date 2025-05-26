@@ -4,7 +4,7 @@ import uuid
 
 
 class Portfolio:
-    def __init__(self, file_path="app/resource/my_portfolio.csv"):
+    def __init__(self, file_path="resource/my_portfolio.csv"):
         self.file_path = file_path
         self.data = pd.read_csv(file_path)
         self.chroma_client = chromadb.PersistentClient('vectorstore')
@@ -18,4 +18,19 @@ class Portfolio:
                                     ids=[str(uuid.uuid4())])
 
     def query_links(self, skills):
-        return self.collection.query(query_texts=skills, n_results=2).get('metadatas', [])
+        results = self.collection.query(query_texts=skills, n_results=2)
+        all_links = []
+
+        for metadata_list in results.get('metadatas', []):
+            for metadata in metadata_list:
+                all_links.append(metadata["links"])
+
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_links = []
+        for link in all_links:
+            if link not in seen:
+                seen.add(link)
+                unique_links.append(link)
+
+        return unique_links

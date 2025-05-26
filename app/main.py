@@ -21,7 +21,9 @@ def create_streamlit_app(llm, portfolio, clean_text):
                 skills = job.get('skills', [])
                 links = portfolio.query_links(skills)
                 email = llm.write_mail(job, links)
-                st.code(email, language='markdown')
+                with st.expander("📧 Generated Cold Email", expanded=True):
+                    st.markdown(f"<div style='white-space: pre-wrap;'>{email}</div>", unsafe_allow_html=True)
+
         except Exception as e:
             st.error(f"An Error Occurred: {e}")
 
